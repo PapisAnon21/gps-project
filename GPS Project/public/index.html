@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+    integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+    crossorigin=""/>
+    
+    <link rel="stylesheet" href="assets/bootstrap-5.0.2-dist/css/bootstrap.min.css" />
+    <script src="asset/bootstrap-5.0.2-dist/js/bootstrap.bundle.js"></script>
+    <!--for routing--><link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+   integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+   crossorigin=""></script>
+   <!--for routing--><script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <title>Map</title>
+    <style>
+       
+        /*styling the size is necessary*/
+        #mymap
+        {
+            position: absolute;
+            top: 50px;
+            bottom:-20px;
+            right: 20px;
+            left: 20px;
+        }
+        @media (max-width: 640px) {
+          #mymap
+        {
+            position: absolute;
+            top: 30px;
+            bottom:-20px;
+            right: 0px;
+            left: 0px;
+        }
+        }
+    </style>
+</head>
+<body class="bg-dark text-white">
+
+  <div class="container-fluid">
+    <div class="row">
+      <h2>Thunder-Tech-Society</h2>
+    </div>
+  </div>
+
+
+   <div id="mymap"></div>
+   
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-database.js"></script>
+
+
+   <script>
+        //creating a map object
+            var map = L.map('mymap').setView([14.945923, -16.80831], 13);
+        //setting up a tileset imported from openstreetmap
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: 'Thunder Tech Society'
+            }).addTo(map);
+        
+
+        //Web App Firebase Configuaration
+            var firebaseConfig = {
+              apiKey: "AIzaSyCwJ3cMm7E2uUD7xj9bK13lRVxAjy156a0",
+              authDomain: "gps-project-ce740.firebaseapp.com",
+              databaseURL: "https://gps-project-ce740-default-rtdb.europe-west1.firebasedatabase.app/",
+              projectId: "gps-project-ce740",
+              storageBucket: "gps-project-ce740.appspot.com",
+              messagingSenderId: "51854953233",
+              appId: "1:51854953233:web:a3ccdc2e2e2c69fd35dab0"
+            };
+        //Initialize Firebase and retrieving data
+            firebase.initializeApp(firebaseConfig);
+
+            var database = firebase.database();
+            // debut
+            var latitudePath = 'coordonnees_1/latitude';
+            var longitudePath = 'coordonnees_1/longitude';
+            //const databaseFloat = database.ref(dataFloatPath);
+            //const databaseInt = database.ref(dataIntPath);
+            const latitude_donnee = database.ref(latitudePath);
+            const longitude_donnee = database.ref(longitudePath);
+
+            // Variables to save database current values
+            //var floatReading;
+            //var intReading;
+
+
+            var latitude;
+            var longitude;
+
+            // Attach an asynchronous callback to read the data
+            latitude_donnee.on('value', (snapshot) => {
+            latitude = snapshot.val();
+            console.log(latitude);
+            //document.getElementById("reading-float").innerHTML = floatReading;
+            }, (errorObject) => {
+                console.log('The read failed: ' + errorObject.name);
+            });
+
+            longitude_donnee.on('value', (snapshot) => {
+            longitude = snapshot.val();
+            console.log(longitude);
+            //document.getElementById("reading-int").innerHTML = intReading;
+            }, (errorObject) => {
+            console.log('The read failed: ' + errorObject.name);
+            });
+            // fin
+            //var firebaseRef = firebase.database().ref("coordonnees_1");
+            /*firebaseRef.on("value",function(snapshot){
+                var data = snapshot.val();
+                //let marker = L.marker([data[0],data[1]]).addTo(map);
+            })*/
+            let marker = L.marker([latitude,longitude]).addTo(map);
+
+        //adding a marker(L.marker)
+           // let marker = L.marker([14.7645042, -17.3660286]).addTo(map);
+        //personalized marker
+         /*  var myIcon = L.icon({
+            iconUrl: 'myicon.png',
+            shadowUrl: 'myIconShadow.png',
+            iconSize:     [38, 95], // size of the icon
+            shadowSize:   [50, 64], // size of the shadow
+            iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+            shadowAnchor: [4, 62],  // the same for the shadow
+            popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+            });*/
+
+            L.marker([latitude, longitude], {icon: greenIcon}).addTo(map);
+        //adding circle
+            var circle = L.circle([latitude, longitude], {
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.5,
+            radius: 500
+            }).addTo(map);
+        //adding polygon
+            //var polygon = L.polygon([
+            //[14.7655042, -17.3960286],
+            //[14.4655042, -17.1960286],
+            //[14.8645042, -17.1660286]
+            //]).addTo(map);
+        //adding popups
+            marker.bindPopup("This a popup").openPopup();
+        //adding another marker
+            map.on("click", function(e){
+            console.log(e);
+            var second_marker = L.marker([e.latlng.lat,e.latlng.lng]).addTo(map);
+            })   
+        //routing        
+            L.Routing.control({
+            waypoints: [
+            L.latLng(latitude, longitude), //replace with data from real time database
+            L.latLng(e.latlng.lat,e.latlng.lng)
+            ]
+            }).addTo(map);
+            //})
+
+        //After the testing phase we can add some other features like:
+            //- Mark a destination on the map and notice about the distance with the marker.
+            //- Think about new features with the team(for example, choosing a point of destination where you want to be noticed once the thing you are tracking arrive there
+            function update_date()
+            {
+            latitude_donnee.on('value', (snapshot) => {
+            latitude = snapshot.val();
+            console.log(latitude);
+            
+            }, 
+            (errorObject) => {
+                console.log('The read failed: ' + errorObject.name);
+            });
+
+            longitude_donnee.on('value', (snapshot) => {
+            longitude = snapshot.val();
+            console.log(longitude);
+            }, 
+            (errorObject) => {
+            console.log('The read failed: ' + errorObject.name);
+            });
+           
+            marker = L.marker([latitude,longitude]).addTo(map);
+
+            //routing        
+            L.Routing.control({
+            waypoints: [
+            L.latLng(latitude, longitude), //replace with data from real time database
+            L.latLng(e.latlng.lat,e.latlng.lng)
+            ]
+            }).addTo(map);
+            //})
+
+            }
+            setInterval(update_date,2000);
+   </script> 
+
+</body>
+</html>

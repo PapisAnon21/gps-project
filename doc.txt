@@ -1,0 +1,4 @@
+nous avons deja telecharge les librairies
+nous avons deja le module  GT U7 gps module
+nous avons deja le branchement avec notre node mcu
+ all things is done now
